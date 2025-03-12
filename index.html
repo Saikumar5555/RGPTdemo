@@ -1,78 +1,719 @@
-
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Card Links</title>
+    <title>Research Grants Management</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        :root {
+            --primary-color: #3a57a6;
+            --secondary-color: #f0f2f5;
+            --text-color: #333;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+        }
+        
+        * {
             margin: 0;
-            background-color: #f0f0f0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .card-container {
+        
+        body {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 2rem;
             display: flex;
-            gap: 20px;
+            justify-content: space-between;
+            align-items: center;
         }
-        .card {
-            width: 200px;
-            height: 300px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            transition: transform 0.3s ease;
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+        
+        nav ul li a:hover {
+            opacity: 0.8;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .page-title {
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        .grants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .grant-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .grant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .grant-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .grant-category {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        
+        .grant-details {
+            margin-bottom: 1rem;
+        }
+        
+        .grant-details p {
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .grant-details span:first-child {
+            font-weight: 500;
+        }
+        
+        .grant-status {
+            display: inline-block;
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-completed {
+            background: #e6f7ea;
+            color: var(--success-color);
+        }
+        
+        .status-ongoing {
+            background: #fff8e6;
+            color: var(--warning-color);
+        }
+        
+        .status-new {
+            background: #e6f0ff;
+            color: var(--primary-color);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border: none;
             cursor: pointer;
-        }
-        .card img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-        }
-        .card-content {
-            padding: 15px;
+            font-size: 0.9rem;
+            transition: background 0.3s;
             text-align: center;
         }
-        .card:hover {
-            transform: scale(1.05);
+        
+        .btn:hover {
+            background: #2a4180;
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 2rem auto;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 800px;
+            width: 90%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .close {
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        
+        .close:hover {
+            opacity: 0.7;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(58, 87, 166, 0.2);
+        }
+        
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            cursor: pointer;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 1.5rem;
+        }
+        
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 500;
+            color: #777;
+        }
+        
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .summary-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .summary-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .summary-label {
+            color: #777;
+            font-size: 0.9rem;
         }
     </style>
 </head>
 <body>
+    <header>
+        <div class="logo">Research Grants Hub</div>
+    </header>
 
-    <div class="card-container">
-        <div class="card" onclick="window.location.href='main.html'">
-            <img src="https://via.placeholder.com/200x150" alt="Card 1">
-            <div class="card-content">
-                <h3>Card 1</h3>
-                <p>Grants</p>
+    <div class="container">
+        <!-- Dashboard Page -->
+        <div class="page active" id="dashboard">
+            <h1 class="page-title">Grants</h1>
+            
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <div class="summary-value">12</div>
+                    <div class="summary-label">Total Grants</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">5</div>
+                    <div class="summary-label">Ongoing Grants</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">4</div>
+                    <div class="summary-label">Completed Grants</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">6</div>
+                    <div class="summary-label">Available Grants</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">$1.2M</div>
+                    <div class="summary-label">Total Funding</div>
+                </div>
             </div>
-        </div>
-
-        <div class="card" onclick="window.location.href='talk.html'">
-            <img src="https://via.placeholder.com/200x150" alt="Card 2">
-            <div class="card-content">
-                <h3>Card 2</h3>
-                <p>Conference</p>
+            
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="ongoing">Ongoing Grants</button>
+                <button class="tab-btn" data-tab="completed">Grant History</button>
+                <button class="tab-btn" data-tab="available">Available Grants</button>
             </div>
-        </div>
+            
+            <div class="tab-content active" id="ongoing-tab">
+                <div class="grants-grid">
+                    <div class="grant-card">
+                        <h3 class="grant-title">Advanced AI Algorithms Development</h3>
+                        <span class="grant-category">Computer Science</span>
+                        <div class="grant-details">
+                            <p><span>Funding:</span> <span>$120,000</span></p>
+                            <p><span>Duration:</span> <span>24 months</span></p>
+                            <p><span>Due Date:</span> <span>June 15, 2025</span></p>
+                            <p><span>Status:</span> <span class="grant-status status-ongoing">Ongoing</span></p>
+                        </div>
+                        <a href="#" class="btn btn-block">View Details</a>
+                    </div>
+                    
+                    <div class="grant-card">
+                        <h3 class="grant-title">Climate Change Impact Assessment</h3>
+                        <span class="grant-category">Environmental Science</span>
+                        <div class="grant-details">
+                            <p><span>Funding:</span> <span>$85,000</span></p>
+                            <p><span>Duration:</span> <span>18 months</span></p>
+                            <p><span>Due Date:</span> <span>August 30, 2025</span></p>
+                            <p><span>Status:</span> <span class="grant-status status-ongoing">Ongoing</span></p>
+                        </div>
+                        <a href="#" class="btn btn-block">View Details</a>
+                    </div>
+                    
+                    <div class="grant-card">
+                        <h3 class="grant-title">Cancer Treatment Innovation</h3>
+                        <span class="grant-category">Medicine</span>
+                        <div class="grant-details">
+                            <p><span>Funding:</span> <span>$230,000</span></p>
+                            <p><span>Duration:</span> <span>36 months</span></p>
+                            <p><span>Due Date:</span> <span>December 10, 2026</span></p>
+                            <p><span>Status:</span> <span class="grant-status status-ongoing">Ongoing</span></p>
+                        </div>
+                        <a href="#" class="btn btn-block">View Details</a>
+                    </div>
 
-        <div class="card" onclick="window.location.href='3hist.html'">
-            <img src="https://via.placeholder.com/200x150" alt="Card 3">
-            <div class="card-content">
-                <h3>Card 3</h3>
-                <p>Data storage</p>
+                    <div class="grant-card">
+                        <h3 class="grant-title">Quantum Computing Research</h3>
+                        <span class="grant-category">Physics</span>
+                        <div class="grant-details">
+                            <p><span>Funding:</span> <span>$180,000</span></p>
+                            <p><span>Duration:</span> <span>30 months</span></p>
+                            <p><span>Due Date:</span> <span>March 22, 2026</span></p>
+                            <p><span>Status:</span> <span class="grant-status status-ongoing">Ongoing</span></p>
+                        </div>
+                        <a href="#" class="btn btn-block">View Details</a>
+                    </div>
+                    
+                    <div class="grant-card">
+                        <h3 class="grant-title">Urban Development Study</h3>
+                        <span class="grant-category">Social Sciences</span>
+                        <div class="grant-details">
+                            <p><span>Funding:</span> <span>$75,000</span></p>
+                            <p><span>Duration:</span> <span>12 months</span></p>
+                            <p><span>Due Date:</span> <span>September 5, 2025</span></p>
+                            <p><span>Status:</span> <span class="grant-status status-ongoing">Ongoing</span></p>
+                        </div>
+                        <a href="#" class="btn btn-block">View Details</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="completed-tab" style="display: none;">
+                <div class="grants-grid">
+                    <div class="grant-card">
+                        <h3 class="grant-title">Neural Network Optimization</h3>
+                        <span class="grant-category">Computer Science</span>
+                        <div class="grant-details">
+                            <p><span>Funding:</span> <span>$95,000</span></p>
+                            <p><span>Duration:</span> <span>12 months</span></p>
+                            <p><span>Completion:</span> <span>January 10, 2025</span></p>
+                            <p><span>Status:</span> <span class="grant-status status-completed">Completed</span></p>
+                        </div>
+                        <a href="#" class="btn btn-block">View Results</a>
+                    </div>
+                    
+                    <div class="grant-card">
+                        <h3 class="grant-title">Ocean Biodiversity Analysis</h3>
+                        <span class="grant-category">Biology</span>
+                        <div class="grant-details">
+                            <p><span>Funding:</span> <span>$110,000</span></p>
+                            <p><span>Duration:</span> <span>18 months</span></p>
+                            <p><span>Completion:</span> <span>December 5, 2024</span></p>
+                            <p><span>Status:</span> <span class="grant-status status-completed">Completed</span></p>
+                        </div>
+                        <a href="#" class="btn btn-block">View Results</a>
+                    </div>
+                    
+                    <div class="grant-card">
+                        <h3 class="grant-title">Sustainable Materials Development</h3>
+                        <span class="grant-category">Chemistry</span>
+                        <div class="grant-details">
+                            <p><span>Funding:</span> <span>$130,000</span></p>
+                            <p><span>Duration:</span> <span>24 months</span></p>
+                            <p><span>Completion:</span> <span>October 18, 2024</span></p>
+                            <p><span>Status:</span> <span class="grant-status status-completed">Completed</span></p>
+                        </div>
+                        <a href="#" class="btn btn-block">View Results</a>
+                    </div>
+                    
+                    <div class="grant-card">
+                        <h3 class="grant-title">Medieval Literature Analysis</h3>
+                        <span class="grant-category">Humanities</span>
+                        <div class="grant-details">
+                            <p><span>Funding:</span> <span>$65,000</span></p>
+                            <p><span>Duration:</span> <span>12 months</span></p>
+                            <p><span>Completion:</span> <span>February 28, 2025</span></p>
+                            <p><span>Status:</span> <span class="grant-status status-completed">Completed</span></p>
+                        </div>
+                        <a href="#" class="btn btn-block">View Results</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="available-tab" style="display: none;">
+                <div class="grants-grid">
+                <div class="grant-card">
+                    <h3 class="grant-title">Renewable Energy Innovation</h3>
+                    <span class="grant-category">Environmental Science</span>
+                    <div class="grant-details">
+                        <p><span>Funding:</span> <span>$150,000</span></p>
+                        <p><span>Duration:</span> <span>24 months</span></p>
+                        <p><span>Deadline:</span> <span>April 30, 2025</span></p>
+                        <p><span>Status:</span> <span class="grant-status status-new">New</span></p>
+                    </div>
+                    <a href="#" class="btn btn-block apply-btn" data-grant="Renewable Energy Innovation">Apply Now</a>
+                </div>
+                
+                <div class="grant-card">
+                    <h3 class="grant-title">Machine Learning for Healthcare</h3>
+                    <span class="grant-category">Computer Science</span>
+                    <div class="grant-details">
+                        <p><span>Funding:</span> <span>$200,000</span></p>
+                        <p><span>Duration:</span> <span>36 months</span></p>
+                        <p><span>Deadline:</span> <span>May 15, 2025</span></p>
+                        <p><span>Status:</span> <span class="grant-status status-new">New</span></p>
+                    </div>
+                    <a href="#" class="btn btn-block apply-btn" data-grant="Machine Learning for Healthcare">Apply Now</a>
+                </div>
+                
+                <div class="grant-card">
+                    <h3 class="grant-title">Vaccine Development Research</h3>
+                    <span class="grant-category">Medicine</span>
+                    <div class="grant-details">
+                        <p><span>Funding:</span> <span>$250,000</span></p>
+                        <p><span>Duration:</span> <span>36 months</span></p>
+                        <p><span>Deadline:</span> <span>June 22, 2025</span></p>
+                        <p><span>Status:</span> <span class="grant-status status-new">New</span></p>
+                    </div>
+                    <a href="#" class="btn btn-block apply-btn" data-grant="Vaccine Development Research">Apply Now</a>
+                </div>
+                
+                <div class="grant-card">
+                    <h3 class="grant-title">Gravitational Waves Study</h3>
+                    <span class="grant-category">Physics</span>
+                    <div class="grant-details">
+                        <p><span>Funding:</span> <span>$180,000</span></p>
+                        <p><span>Duration:</span> <span>24 months</span></p>
+                        <p><span>Deadline:</span> <span>July 10, 2025</span></p>
+                        <p><span>Status:</span> <span class="grant-status status-new">New</span></p>
+                    </div>
+                    <a href="#" class="btn btn-block apply-btn" data-grant="Gravitational Waves Study">Apply Now</a>
+                </div>
+                
+                <div class="grant-card">
+                    <h3 class="grant-title">Biodegradable Plastics</h3>
+                    <span class="grant-category">Chemistry</span>
+                    <div class="grant-details">
+                        <p><span>Funding:</span> <span>$120,000</span></p>
+                        <p><span>Duration:</span> <span>18 months</span></p>
+                        <p><span>Deadline:</span> <span>May 5, 2025</span></p>
+                        <p><span>Status:</span> <span class="grant-status status-new">New</span></p>
+                    </div>
+                    <a href="#" class="btn btn-block apply-btn" data-grant="Biodegradable Plastics">Apply Now</a>
+                </div>
+                
+                <div class="grant-card">
+                    <h3 class="grant-title">Cultural Heritage Preservation</h3>
+                    <span class="grant-category">Humanities</span>
+                    <div class="grant-details">
+                        <p><span>Funding:</span> <span>$80,000</span></p>
+                        <p><span>Duration:</span> <span>12 months</span></p>
+                        <p><span>Deadline:</span> <span>April 20, 2025</span></p>
+                        <p><span>Status:</span> <span class="grant-status status-new">New</span></p>
+                    </div>
+                    <a href="#" class="btn btn-block apply-btn" data-grant="Cultural Heritage Preservation">Apply Now</a>
+                </div>
+            </div>
             </div>
         </div>
     </div>
 
+    <!-- Application Modal -->
+    <div class="modal" id="application-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Grant Application Form</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="grant-application-form">
+                <div class="form-group">
+                    <label class="form-label" for="grant-title">Grant Title</label>
+                    <input type="text" id="grant-title" class="form-control" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="principal-researcher">Principal Researcher</label>
+                    <input type="text" id="principal-researcher" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="institution">Institution</label>
+                    <input type="text" id="institution" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="email">Email</label>
+                    <input type="email" id="email" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="phone">Phone</label>
+                    <input type="tel" id="phone" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="project-title">Project Title</label>
+                    <input type="text" id="project-title" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="research-category">Research Category</label>
+                    <select id="research-category" class="form-control" required>
+                        <option value="">Select a category</option>
+                        <option value="Computer Science">Computer Science</option>
+                        <option value="Biology">Biology</option>
+                        <option value="Medicine">Medicine</option>
+                        <option value="Environmental Science">Environmental Science</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="Social Sciences">Social Sciences</option>
+                        <option value="Humanities">Humanities</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="funding-amount">Requested Funding Amount ($)</label>
+                    <input type="number" id="funding-amount" class="form-control" required min="1000">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="project-duration">Project Duration (months)</label>
+                    <input type="number" id="project-duration" class="form-control" required min="1">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="project-abstract">Project Abstract</label>
+                    <textarea id="project-abstract" class="form-control" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="research-methodology">Research Methodology</label>
+                    <textarea id="research-methodology" class="form-control" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="expected-outcomes">Expected Outcomes</label>
+                    <textarea id="expected-outcomes" class="form-control" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="budget-breakdown">Budget Breakdown</label>
+                    <textarea id="budget-breakdown" class="form-control" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Previous Funding</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="previous-funding" value="Yes" required>
+                            Yes
+                        </label>
+                        <label>
+                            <input type="radio" name="previous-funding" value="No" required>
+                            No
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="team-size">Research Team Size</label>
+                    <input type="number" id="team-size" class="form-control" required min="1">
+                </div>
+                
+                <button type="submit" class="btn btn-block">Submit Application</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // No longer needed - removed navigation
+        
+        // Tab switching
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                
+                // Deactivate all tabs
+                tabBtns.forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.style.display = 'none';
+                });
+                
+                // Activate selected tab
+                this.classList.add('active');
+                if (tabId === 'ongoing') {
+                    document.getElementById('ongoing-tab').style.display = 'block';
+                } else if (tabId === 'completed') {
+                    document.getElementById('completed-tab').style.display = 'block';
+                } else if (tabId === 'available') {
+                    document.getElementById('available-tab').style.display = 'block';
+                }
+            });
+        });
+        
+        // Application Modal
+        const modal = document.getElementById('application-modal');
+        const applyBtns = document.querySelectorAll('.apply-btn');
+        const closeBtn = document.querySelector('.close');
+        const grantTitleInput = document.getElementById('grant-title');
+        
+        applyBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const grantTitle = this.getAttribute('data-grant');
+                grantTitleInput.value = grantTitle;
+                modal.style.display = 'block';
+            });
+        });
+        
+        closeBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+        
+        window.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        
+        // Form submission
+        const applicationForm = document.getElementById('grant-application-form');
+        
+        applicationForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Application submitted successfully! We will review your application and get back to you shortly.');
+            modal.style.display = 'none';
+            applicationForm.reset();
+        });
+    </script>
 </body>
 </html>
